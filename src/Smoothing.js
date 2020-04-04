@@ -44,7 +44,7 @@ class Smoothing{
   fit(){
     throw new Error("Use one of the implementations, not base class.")
   }
-  predict(){
+  forecast(){
     throw new Error("Use one of the implementations, not base class.")
   }
 }
@@ -52,24 +52,74 @@ class Smoothing{
 class SingleSmooth extends Smoothing{
   constructor(data, params){
     super(data, params)
-    this.params.alpha = this.params.alpha || 0.8
+    this.alpha = this.params.alpha || 0.8
   }
   fit(){
     let s = []
     s[0] = this.data[0]
     for (let i=1; i<this.data.length; i++){
-      s[i] = elementwise((a,b)=> {return this.params.alpha * a + (1-this.params.alpha)*b}, this.data[i], s[i-1])
+      s[i] = elementwise((a,b)=> {return this.alpha * a + (1-this.alpha)*b}, this.data[i], s[i-1])
+    }
+    this.s = s
+    return s
+  }
+  forecast(){
+    throw new Error("NOT YET IMPLEMENTED")
+  }
+}
+
+class DoubleSmooth extends Smoothing{
+  constructor(data, params){
+    super(data, params)
+    this.alpha = this.params.alpha || 0.8
+    this.beta = this.params.beta || 0.7
+  }
+  fit(){
+    let s = []
+    let b = []
+    s[0] = this.data[0]
+    s[1] = this.data[1]
+    b[0] = 0
+    b[1] = elementwise((a,b)=>a-b, s[1], s[0])
+    for (let i=2; i<this.data.length; i++){
+      s[i] = elementwise((a,b)=> {return this.alpha * a + (1-this.alpha)*b}, this.data[i], elementwise((a,b)=>a-b, s[i-1], b[i-1]))
+      b[i] = elementwise((a,b)=> {return this.beta* a + (1-this.beta)*b}, elementwise((a,b)=>a-b, s[i], s[i-1]), b[i-1])
+    }
+    this.s = s
+    this.b = b
+    return s
+  }
+  forecast(){
+    throw new Error("NOT YET IMPLEMENTED")
+  }
+}
+
+
+class TripleSmooth extends Smoothing{
+  constructor(data, params){
+    super(data, params)
+    this.alpha = this.params.alpha || 0.8
+    this.beta = this.params.beta || 0.7
+    this.gamma = this.params.gamma || 0.6
+  }
+  fit(){
+    let s = []
+    s[0] = this.data[0]
+    for (let i=1; i<this.data.length; i++){
+      s[i] = elementwise((a,b)=> {return this.alpha * a + (1-this.alpha)*b}, this.data[i], s[i-1])
     }
     return s
+  }
+  forecast(){
+    throw new Error("NOT YET IMPLEMENTED")
   }
 }
 
 // testing so far
 j = devSeed(2,100)
-s = new SingleSmooth(j)
-
-class DoubleSmooth extends Smoothing{
-}
-
-class TripleSmooth extends Smoothing{
-}
+s1 = new SingleSmooth(j)
+res1 = s1.fit()
+s2 = new DoubleSmooth(j)
+res2 = s2.fit()
+s3 = new TripleSmooth(j)
+res2 = s2.fit()
