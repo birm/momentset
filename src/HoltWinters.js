@@ -27,7 +27,7 @@ function normDiff(a, b, order) {
 function devSeed(dims, observations) {
     let res = []
     for (let i = 0; i < observations; i++) {
-        res[i] = new Array(dims).fill(Math.random())
+        res[i] = new Array(dims).fill(Math.random()*20+20)
     }
     return res;
 }
@@ -36,7 +36,7 @@ function devSeed(dims, observations) {
 // single double and triple exponential smoothing
 class Smoothing {
     constructor(data, params) {
-        this.data = data
+        this.data = data.slice()
         this.params = params || {}
     }
     fit() {
@@ -71,6 +71,7 @@ class SingleSmooth extends Smoothing {
     }
     append(pt) {
         let i = this.data.length
+        this.data[i] = pt
         this.S[i] = elementwise((a, b) => {
             return this.alpha * a + (1 - this.alpha) * b
         }, pt, this.S[i - 1])
@@ -114,17 +115,20 @@ class DoubleSmooth extends Smoothing {
     }
     append(pt) {
         let i = this.data.length
+        this.data[i] = pt
+        let S = this.S
+        let B = this.B
         this.S[i] = elementwise((a, b) => {
             return this.alpha * a + (1 - this.alpha) * b
-        }, pt, elementwise((a, b) => a - b, this.S[i - 1], this.B[i - 1]))
+        }, this.data[i], elementwise((a, b) => a - b, S[i - 1], B[i - 1]))
         this.B[i] = elementwise((a, b) => {
             return this.beta * a + (1 - this.beta) * b
-        }, elementwise((a, b) => a - b, this.S[i], this.S[i - 1]), this.B[i - 1])
+        }, elementwise((a, b) => a - b, S[i], S[i - 1]), B[i - 1])
         return this.S[i]
     }
 }
 
-// Holt-winters, multiplicative
+// Holt-winters, additive
 class TripleSmooth extends Smoothing {
     constructor(data, params) {
         super(data, params)
@@ -141,10 +145,10 @@ class TripleSmooth extends Smoothing {
         let B = []
         let C = []
         let L = this.period
-        let A = new Array(L).fill(new Array(this.data[0].length).fill(0));
         S[0] = this.data[0]
         B[0] = new Array(this.data[0].length).fill(0);
-        let N = Math.floor(this.data.length / this.period)
+        let N = Math.floor((this.data.length-1)/ this.period)
+        let A = new Array(N).fill(new Array(this.data[0].length).fill(0));
         // Initalizations
         for (let i = 0; i < L; i++) {
             B[0] = elementwise((a, b) => a + b, B[0], elementwise((c, d) => {
@@ -171,19 +175,16 @@ class TripleSmooth extends Smoothing {
             }, elementwise((a, b) => a - b, S[i], S[i - 1]), B[i - 1])
         }
         for (let i = L; i < this.data.length; i++) {
-            S[i] = elementwise((c, d) => c + d, elementwise((a, b) => {
-                return this.alpha * (a / b)
-            }, this.data[i], C[i - L]), elementwise((e, f) => {
-                return 1 - this.alpha * (e, f)
-            }, S[i - 1], B[i - 1]))
+            S[i] = elementwise((a,b)=>(this.alpha*a)+((1-this.alpha)*b), elementwise((c,d)=>c-d, this.data[i], C[i-L]), elementwise((e,f)=>e+f, S[i-1], B[i-1]))
             B[i] = elementwise((a, b) => {
-                return this.beta * a + (1 - this.beta) * b
-            }, elementwise((c, d) => c - d, S[i], S[i - 1]), B[i - 1])
+                return (this.beta * a) + ((1 - this.beta) * b)
+            }, elementwise((a, b) => a - b, S[i], S[i - 1]), B[i - 1])
             C[i] = elementwise((a, b) => {
-                return a + (1 - this.gamma)
+                return (this.gamma * a) + (1 - this.gamma)*b
             }, elementwise((c, d) => {
-                return this.gamma * (c / d)
-            }, this.data[i], S[i]), C[i - L])
+                return (c - d)
+            }, this.data[i], elementwise((e,f)=>e+f, S[i-1], B[i-1])), C[i - L])
+
         }
         this.S = S
         this.B = B
@@ -192,20 +193,20 @@ class TripleSmooth extends Smoothing {
     }
     append(pt) {
         let i = this.data.length
+        this.data[i] = pt
         let L = this.period
-        this.S[i] = elementwise((c, d) => c + d, elementwise((a, b) => {
-            return this.alpha * (a / b)
-        }, pt, this.C[i - L]), elementwise((e, f) => {
-            return 1 - this.alpha * (e, f)
-        }, this.S[i - 1], this.B[i - 1]))
+        let S = this.S
+        let B = this.B
+        let C = this.C
+        this.S[i] = elementwise((a,b)=>(this.alpha*a)+((1-this.alpha)*b), elementwise((c,d)=>c-d, this.data[i], this.C[i-L]), elementwise((e,f)=>e+f, this.S[i-1], this.B[i-1]))
         this.B[i] = elementwise((a, b) => {
-            return this.beta * a + (1 - this.beta) * b
-        }, elementwise((c, d) => c - d, this.S[i], this.S[i - 1]), this.B[i - 1])
+            return (this.beta * a) + ((1 - this.beta) * b)
+        }, elementwise((a, b) => a - b, S[i], S[i - 1]), B[i - 1])
         this.C[i] = elementwise((a, b) => {
-            return a + (1 - this.gamma)
+            return (this.gamma * a) + (1 - this.gamma)*b
         }, elementwise((c, d) => {
-            return this.gamma * (c / d)
-        }, pt, this.S[i]), this.C[i - L])
+            return (c - d)
+        }, this.data[i], elementwise((e,f)=>e+f, S[i-1], B[i-1])), C[i - L])
         return this.S[i]
     }
     forecast(n) {
@@ -234,17 +235,19 @@ function HoltWinters(n, data, params) {
     }
 }
 
-// smoke testing
-j = devSeed(2, 100)
-s1 = HoltWinters(1, j)
-res1 = s1.fit()
-s2 = HoltWinters(2, j)
-res2 = s2.fit()
-s3 = HoltWinters(3, j)
-res2 = s3.fit()
-s1.append(devSeed(2, 1)[0])
-s2.append(devSeed(2, 1)[0])
-s3.append(devSeed(2, 1)[0])
-f1 = s1.forecast(5)
-f2 = s2.forecast(5)
-f3 = s3.forecast(5)
+function _smokeTest(){
+  let j = devSeed(2, 100)
+  let s1 = HoltWinters(1, j)
+  let res1 = s1.fit()
+  let s2 = HoltWinters(2, j)
+  let res2 = s2.fit()
+  let s3 = HoltWinters(3, j)
+  let res3 = s3.fit()
+  s1.append(devSeed(2, 1)[0])
+  s2.append(devSeed(2, 1)[0])
+  s3.append(devSeed(2, 1)[0])
+  let f1 = s1.forecast(5)
+  let f2 = s2.forecast(5)
+  let f3 = s3.forecast(5)
+}
+_smokeTest()
