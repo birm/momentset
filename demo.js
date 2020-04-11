@@ -14,6 +14,13 @@ s = []
 b = []
 c = []
 l=[]
+
+var url = new URL(window.location.href);
+var f = url.searchParams.get("f") || 10;
+f = parseInt(f,10)
+fs1 = s1.forecast(f)
+fs2 = s2.forecast(f)
+fs3 = s3.forecast(f)
 for (let i=0; i<j.length; i++){
   r0[i] = j[i][0]
   r1[i] = res1[i][0]
@@ -23,6 +30,13 @@ for (let i=0; i<j.length; i++){
   s[i] = s3.S[i][0]
   b[i] = s3.B[i][0]
   c[i] = s3.C[i][0]
+}
+for (let i=0; i<f; i++){
+  let m = i + j.length
+  l[m] = m
+  r1[m] = fs1[i][0]
+  r2[m] = fs2[i][0]
+  r3[m] = fs3[i][0]
 }
 
 window.chartColors = {
@@ -71,7 +85,7 @@ window.smoothChart = new Chart(ctx1, {
   responsive: true,
   title: {
     display: true,
-    text: 'Holt Winters on Random Data'
+    text: 'Holt Winters on Random Data, Forecasting out ' + f
   },
   tooltips: {
     mode: 'index',
