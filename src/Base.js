@@ -11,25 +11,8 @@ function elementwise(op, a, b) {
     return r
 }
 
-// make sure norms behave
-function normDiff(a, b, order) {
-    let r = []
-    for (let i = 0; i < a.length; i++) {
-        let s = 0;
-        for (let j = 0; j < a[i].length; j++) {
-            s += a[i][j] ** order + b[i][j] ** order
-        }
-        r[i] = s
-    }
-    return r
-}
-
-function devSeed(dims, observations) {
-    let res = []
-    for (let i = 0; i < observations; i++) {
-        res[i] = new Array(dims).fill(Math.random()*20+20)
-    }
-    return res;
+function devSeed(observations) {
+    return Array.from({length: observations}, () => Math.random()*20+20);
 }
 
 // stats related functions
