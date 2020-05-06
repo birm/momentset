@@ -1,9 +1,10 @@
 class AutoRegression extends Model {
     constructor(data, params) {
         super(data, params)
-        this.alpha = this.params.alpha || 0.8
+        this.p = this.params.p || 1
     }
     fit() {
+        // using ??
         throw new Error("Not Implemented")
     }
     forecast(n) {

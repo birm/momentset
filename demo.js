@@ -1,4 +1,4 @@
-j = devSeed(1, 100)
+j = devSeed(100)
 let params = {alpha:0.1, beta:0.5, gamma:0.1}
 s1 = HoltWinters(1, j, params)
 res1 = s1.fit()
@@ -22,21 +22,21 @@ fs1 = s1.forecast(f)
 fs2 = s2.forecast(f)
 fs3 = s3.forecast(f)
 for (let i=0; i<j.length; i++){
-  r0[i] = j[i][0]
-  r1[i] = res1[i][0]
-  r2[i] = res2[i][0]
-  r3[i] = res3[i][0]
+  r0[i] = j[i]
+  r1[i] = res1[i]
+  r2[i] = res2[i]
+  r3[i] = res3[i]
   l[i] = i
-  s[i] = s3.S[i][0]
-  b[i] = s3.B[i][0]
-  c[i] = s3.C[i][0]
+  s[i] = s3.S[i]
+  b[i] = s3.B[i]
+  c[i] = s3.C[i]
 }
 for (let i=0; i<f; i++){
   let m = i + j.length
   l[m] = m
-  r1[m] = fs1[i][0]
-  r2[m] = fs2[i][0]
-  r3[m] = fs3[i][0]
+  r1[m] = fs1[i]
+  r2[m] = fs2[i]
+  r3[m] = fs3[i]
 }
 
 window.chartColors = {
