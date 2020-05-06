@@ -32,6 +32,19 @@ function devSeed(dims, observations) {
     return res;
 }
 
+// stats related functions
+function mean(X){
+  return 0
+}
+
+function correlation(X){
+  return 0
+}
+
+function autoCorrelation(X, k){
+  return 0
+}
+
 
 // ABC for models
 class Model {
