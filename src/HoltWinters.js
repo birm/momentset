@@ -104,7 +104,7 @@ class TripleSmooth extends Model {
         for (let i = L; i < this.data.length; i++) {
             S[i] = (this.alpha*(this.data[i] - C[i-L]))+((1-this.alpha)*(S[i-1] + B[i-1]))
             B[i] = (this.beta * (S[i] - S[i-1])) + ((1 - this.beta) * B[i-1])
-            C[i] = (this.gamma * ((S[i-1] + B[i-1]) - B[i-1])) + (1 - this.gamma)*C[i - L]
+            C[i] = (this.gamma * (this.data[i] - S[i-1] - B[i-1])) + (1 - this.gamma)*C[i - L]
         }
         this.S = S
         this.B = B
@@ -120,7 +120,7 @@ class TripleSmooth extends Model {
         let C = this.C
         this.S[i] = (this.alpha*(this.data[i] - C[i-L]))+((1-this.alpha)*(S[i-1] + B[i-1]))
         this.B[i] = (this.beta * (S[i] - S[i-1])) + ((1 - this.beta) * B[i-1])
-        this.C[i] = (this.gamma * ((S[i-1] + B[i-1]) - B[i-1])) + (1 - this.gamma)*C[i - L]
+        this.C[i] = (this.gamma * (this.data[i] - S[i-1] - B[i-1])) + (1 - this.gamma)*C[i - L]
         return this.S[i]
     }
     forecast(n) {
