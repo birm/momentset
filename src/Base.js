@@ -25,7 +25,7 @@ function mean(X){
 }
 function covariance(X, Y){
   if (X.length != Y.length) {
-      console.info("covariance length mismatch") // expected for autoCorrelation
+      console.info("covariance length mismatch")
   }
   let N = Math.min(X.length, Y.length)
   let res = 0
@@ -62,7 +62,7 @@ function lag(X, t){
   if (X.length < t){
     console.warn("Not enough observations to lag: " + X.length + " < " + t)
   }
-  return X.slice(t)
+  return X.slice(t).concat(X.slice(0,t))
 }
 
 const std = standardDeviation // alias
