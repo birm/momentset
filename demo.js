@@ -6,10 +6,19 @@ s2 = HoltWinters(2, j, params)
 res2 = s2.fit()
 s3 = HoltWinters(3, j, params)
 res3 = s3.fit()
+ar2 = new AutoRegression(j, {p:2})
+ar5 = new AutoRegression(j, {p:5})
+ar9 = new AutoRegression(j, {p:9})
+ar2.fit()
+ar5.fit()
+ar9.fit()
 r0 = []
 r1 = []
 r2 = []
 r3 = []
+r4 = []
+r5 = []
+r6 = []
 s = []
 b = []
 c = []
@@ -21,11 +30,17 @@ f = parseInt(f,10)
 fs1 = s1.forecast(f)
 fs2 = s2.forecast(f)
 fs3 = s3.forecast(f)
+far2 = ar2.forecast(f)
+far5 = ar5.forecast(f)
+far9 = ar9.forecast(f)
 for (let i=0; i<j.length; i++){
   r0[i] = j[i]
   r1[i] = res1[i]
   r2[i] = res2[i]
   r3[i] = res3[i]
+  r4[i] = j[i]
+  r5[i] = j[i]
+  r6[i] = j[i]
   l[i] = i
   s[i] = s3.S[i]
   b[i] = s3.B[i]
@@ -37,6 +52,9 @@ for (let i=0; i<f; i++){
   r1[m] = fs1[i]
   r2[m] = fs2[i]
   r3[m] = fs3[i]
+  r4[m] = far2[i]
+  r5[m] = far5[i]
+  r6[m] = far9[i]
 }
 
 window.chartColors = {
@@ -79,13 +97,31 @@ window.smoothChart = new Chart(ctx1, {
 					backgroundColor: window.chartColors.green,
 					borderColor: window.chartColors.green,
 					data: r3,
+				},{
+					label: 'AR(2)',
+					fill: false,
+					backgroundColor: window.chartColors.gray,
+					borderColor: window.chartColors.gray,
+					data: r4,
+				},{
+					label: 'AR(5)',
+					fill: false,
+					backgroundColor: window.chartColors.orange,
+					borderColor: window.chartColors.orange,
+					data: r5,
+				},{
+					label: 'AR(9)',
+					fill: false,
+					backgroundColor: window.chartColors.purple,
+					borderColor: window.chartColors.purple,
+					data: r6,
 				}]
     },
     options: {
   responsive: true,
   title: {
     display: true,
-    text: 'Holt Winters on Random Data, Forecasting out ' + f
+    text: 'Holt Winters and AR(p) on Random Data, Forecasting out ' + f
   },
   tooltips: {
     mode: 'index',
