@@ -15,8 +15,6 @@ function devSeed(observations) {
     return Array.from({length: observations}, () => Math.random()*20+20);
 }
 
-const pacf = partialAutoCorrelation // alias
-
 // ABC for models
 class Model {
     constructor(data, params) {

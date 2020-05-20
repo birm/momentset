@@ -57,11 +57,19 @@ function correlation(X, Y){
 const corr = correlation // alias
 
 function autoCorrelation(X, t){
-  return correlation(X, lag(X,t))
+  return correlation(X, lag(X, t))
 }
 
 const acf = autoCorrelation // alias
 
-function partialAutoCorrelation(X, k){
-  // todo
+function autoCovariance(X, t){
+  return cov(X, lag(X, t))
 }
+
+function partialAutoCorrelation(X, k){
+  // todo maybe?
+  throw new Error("Not implemented yet.")
+}
+
+
+const pacf = partialAutoCorrelation // alias
