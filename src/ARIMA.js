@@ -1,7 +1,7 @@
 class AutoRegression extends Model {
     constructor(data, params) {
         super(data, params)
-        this.p = this.params.p || 1
+        this.p = this.params.p || 5
     }
     fit() {
         // using yule walker
@@ -56,29 +56,34 @@ class MovingAverage extends Model {
         return new Array(n).fill(this.X[this.X.length - 1])
     }
     append(pt) {
+        this.data.push(pt)
         let i = this.data.length
-        let ma = this.data.slice(Math.max((i-this.q) + 1, 0), i )
-        ma.push(pt)
+        let ma = this.data.slice(Math.max((i-this.q) + 1, 0), i +1 )
         let res = ma.reduce((a,b)=>a+b) / ma.length
-        this.data.push(res)
+        this.X.push(res)
         return res
     }
 }
 
-
+// I think I've done ARMA very nontradionally (read: wrong), revisit later...
 class ARMA extends Model {
     constructor(data, params) {
         super(data, params)
-        this.alpha = this.params.alpha || 0.8
+        this.q = this.params.q || 5
+        this.p = this.params.p || 5
     }
     fit() {
-        throw new Error("Not Implemented")
+        this.ma = new MovingAverage(this.data, {q:this.q})
+        this.ma.fit()
+        console.log(this.data)
+        this.ar = new AutoRegression(this.ma.fit(), {p:this.p})
+        return this.ar.fit()
     }
     forecast(n) {
-        throw new Error("Not Implemented")
+        return this.ar.forecast(n)
     }
     append(pt) {
-        throw new Error("Not Implemented")
+        this.ar.append(this.ma.append(pt))
     }
 }
 
