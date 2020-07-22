@@ -10,10 +10,12 @@ ar2 = new AutoRegression(j, {p:2})
 ar5 = new AutoRegression(j, {p:5})
 ar9 = new AutoRegression(j, {p:9})
 arma55 = new ARMA(j, {p:5, q:5})
+arima515 = new ARIMA(j, {p:5, d:1, q:5})
 ar2.fit()
 ar5.fit()
 ar9.fit()
 res7 = arma55.fit()
+res8 = arima515.fit()
 r0 = []
 r1 = []
 r2 = []
@@ -22,6 +24,7 @@ r4 = []
 r5 = []
 r6 = []
 r7 = []
+r8 = []
 s = []
 b = []
 c = []
@@ -37,6 +40,7 @@ far2 = ar2.forecast(f)
 far5 = ar5.forecast(f)
 far9 = ar9.forecast(f)
 farma55 = arma55.forecast(f)
+farima515 = arima515.forecast(f)
 for (let i=0; i<j.length; i++){
   r0[i] = j[i]
   r1[i] = res1[i]
@@ -46,6 +50,7 @@ for (let i=0; i<j.length; i++){
   r5[i] = j[i]
   r6[i] = j[i]
   r7[i] = res7[i]
+  r8[i] = res8[i]
   l[i] = i
   s[i] = s3.S[i]
   b[i] = s3.B[i]
@@ -62,6 +67,7 @@ for (let i=0; i<f; i++){
   r5[m] = far5[i]
   r6[m] = far9[i]
   r7[m] = farma55[i]
+  r8[m] = farima515[i]
 }
 
 window.chartColors = {
@@ -99,12 +105,6 @@ window.smoothChart = new Chart(ctx1, {
 					borderColor: window.chartColors.green,
 					data: r3,
 				},{
-					label: 'AR(2)',
-					fill: false,
-					backgroundColor: window.chartColors.gray,
-					borderColor: window.chartColors.gray,
-					data: r4,
-				},{
 					label: 'AR(5)',
 					fill: false,
 					backgroundColor: window.chartColors.orange,
@@ -122,6 +122,12 @@ window.smoothChart = new Chart(ctx1, {
 					backgroundColor: window.chartColors.yellow,
 					borderColor: window.chartColors.yellow,
 					data: r7,
+				},{
+					label: 'ARIMA(5,1,5)',
+					fill: false,
+					backgroundColor: window.chartColors.gray,
+					borderColor: window.chartColors.gray,
+					data: r8,
 				}]
     },
     options: {

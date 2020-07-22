@@ -75,7 +75,6 @@ class ARMA extends Model {
     fit() {
         this.ma = new MovingAverage(this.data, {q:this.q})
         this.ma.fit()
-        console.log(this.data)
         this.ar = new AutoRegression(this.ma.fit(), {p:this.p})
         return this.ar.fit()
     }
@@ -91,32 +90,36 @@ class ARMA extends Model {
 class ARIMA extends Model {
     constructor(data, params) {
         super(data, params)
-        this.alpha = this.params.alpha || 0.8
+        this.q = this.params.q || 5
+        this.d = this.params.d || 1
+        this.p = this.params.p || 5
     }
     fit() {
-        throw new Error("Not Implemented")
+        // differencing order d
+        let diff_data = this.data.slice()
+        for (let j=0; j < this.d; j++){
+          let new_diff_data = diff_data.slice()
+          new_diff_data[0] = 0
+          for (let i=1; i < diff_data.length ; i++){
+            new_diff_data[i] = diff_data[i] - diff_data[i-1]
+            console.log(new_diff_data[i])
+          }
+          diff_data = new_diff_data
+        }
+        this._arma = new ARMA(diff_data, this.params)
+        this.diff_data = diff_data
+        return this._arma.fit()
     }
     forecast(n) {
-        throw new Error("Not Implemented")
+        return this._arma.forecast(n)
     }
     append(pt) {
-        throw new Error("Not Implemented")
-    }
-}
-
-
-class SARIMA extends Model {
-    constructor(data, params) {
-        super(data, params)
-        this.alpha = this.params.alpha || 0.8
-    }
-    fit() {
-        throw new Error("Not Implemented")
-    }
-    forecast(n) {
-        throw new Error("Not Implemented")
-    }
-    append(pt) {
-        throw new Error("Not Implemented")
+        let diff_data = this.diff_data.slice()
+        for (let i=0; i < diff_data.length -1 ; i++){
+          new_diff_data[j] = diff_data[j] - diff_data[j-1]
+        }
+        let new_pt = diff_data[diff_data.length-1]
+        this.diff_data = new_pt
+        return this._arma.append(new_pt)
     }
 }
