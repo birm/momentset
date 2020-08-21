@@ -102,7 +102,6 @@ class ARIMA extends Model {
           new_diff_data[0] = 0
           for (let i=1; i < diff_data.length ; i++){
             new_diff_data[i] = diff_data[i] - diff_data[i-1]
-            console.log(new_diff_data[i])
           }
           diff_data = new_diff_data
         }
